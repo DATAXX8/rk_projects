@@ -17,13 +17,16 @@ from sklearn import svm
 from sklearn.metrics import f1_score
 from sklearn.ensemble import RandomForestClassifier
 
+# importing the training data set
 X = pd.read_csv('loan_train.csv')
 
+# importing the testing data set
 Y = pd.read_csv('loan_test.csv')
 
-
+# Dimensions of the training set
 print(X.shape)
 
+# Trying to get information about the data by looking at first 200 values
 print(X.info())
 print(X.head(200))
 
@@ -35,6 +38,7 @@ print(missing)
 fill_data = X.fillna(method='bfill',axis=0).fillna(0)
 print(fill_data)
 
+#Dropping missing values (Nan's in pandas)
 fill_y = Y.fillna(method='bfill',axis=0).fillna(0)
 print(fill_y)
 
@@ -47,6 +51,7 @@ drop = X.drop(['Loan_ID'],axis=1)
 X = drop
 print(X)
 
+#Dropping loan ID before training the model
 Y =fill_y
 drooping = Y.drop(['Loan_ID'],axis=1)
 
@@ -99,17 +104,18 @@ le = LabelEncoder()
 for i in var_Y:
     Y[i] = le.fit_transform(Y[i])
 
-
+# Reshaping the array so that we can perform train_test split
 y = X['Loan_Status']
 X = X.drop(['Loan_Status'],axis=1)
 Y = Y[0:123]
 
-## very impppp(infinty values,NAN)
+## StandardScaling(infinty values,NAN)
 X = preprocessing.StandardScaler().fit(X).transform(X.astype(float))
 Y = preprocessing.StandardScaler().fit(Y).transform(Y.astype(float))
 np.nan_to_num(X)
 np.nan_to_num(Y)
 
+# Dividing the data into training set and testing set (80% , 20%)
 X_train, X_test , y_train , y_test = train_test_split(X,y,test_size=0.2,random_state=0)
 print(X_train.shape)
 print(X_test.shape)
@@ -135,7 +141,7 @@ drugTree.fit(X_train,y_train)
 predTree = drugTree.predict(Y)
 print("DecisionTrees's Accuracy: ", metrics.accuracy_score(y_test, predTree))
 
-# implementing SVM
+# implementing SVM(using radial basis fucntion)
 clf = svm.SVC(kernel='rbf')
 clf.fit(X_train, y_train)
 y_pred = clf.predict(Y) 
@@ -152,19 +158,19 @@ y_pred = rf.predict(Y)
 print("Random Forest Accuracy: ", metrics.accuracy_score(y_test,y_pred))
 
 # Performing feature selection to improve performance of the model
-#rf = RandomForestClassifier(n_estimators=100)
-#rf.fit(X_train,y_train)
-#feature_imp = pd.Series(rf.feature_importances_,index=X_train.columns).sort_values(ascending=False)
-#print(feature_imp)
+rf = RandomForestClassifier(n_estimators=100)
+rf.fit(X_train,y_train)
+feature_imp = pd.Series(rf.feature_importances_,index=X_train.columns).sort_values(ascending=False)
+print(feature_imp)
 
-
-#sns.barplot(x=feature_imp, y=feature_imp.index)
+# Visualizing feature importance after fitting a random forest model to the training data(X_train,y_train)
+sns.barplot(x=feature_imp, y=feature_imp.index)
 #Add labels to your graph
-#plt.xlabel('Feature Importance Score')
-#plt.ylabel('Features')
-#plt.title("Visualizing Important Features")
-#plt.legend()
-#plt.show()
+plt.xlabel('Feature Importance Score')
+plt.ylabel('Features')
+plt.title("Visualizing Important Features")
+plt.legend()
+plt.show()
 
 
 
