@@ -9,16 +9,17 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.decomposition import PCA 
 from sklearn import metrics
 
-
+# importing the training data
 X = pd.read_csv('insurance.csv')
 X
 
+# importing the testing set
 Y = pd.read_csv('test.csv')
 Y
 
+# dimensions of the training data set
 print(X.shape)
 
 #checkin for missing values in the daatset
@@ -41,7 +42,7 @@ fill_data = X.fillna(method='bfill',axis=0).fillna(0)
 print(fill_data)
 
 X = fill_data
-
+# Calculating value of all non-null objects 
 print(X.isnull().sum())
 
 fill_Y = Y.fillna(method='bfill',axis=0).fillna(0)
@@ -52,9 +53,10 @@ Y = fill_Y
 # Understanding the data
 print(X.describe())
 
+# Designating y as the taget column in the training set
 y = X['Response']
 
-
+# dropping unnecessary columns
 X = X.drop(['Response','Id'],axis=1)
 
 print(X)
@@ -73,18 +75,21 @@ le = LabelEncoder()
 for i in var_Y:
     Y[i] = le.fit_transform(Y[i])
 
-# Splitting the data
+# Extracting the right amount of data
 
 X = X[['BMI','Wt','Product_Info_4','Medical_History_15','Ins_Age','Medical_History_4','Family_Hist_3','Employment_Info_1','Family_Hist_4','Family_Hist_2','Family_Hist_5','Employment_Info_6','Insurance_History_5']]
 
 Y = Y[['BMI','Wt','Product_Info_4','Medical_History_15','Ins_Age','Medical_History_4','Family_Hist_3','Employment_Info_1','Family_Hist_4','Family_Hist_2','Family_Hist_5','Employment_Info_6','Insurance_History_5']]
 
+# preprocessing the data using StandardScaler(Numpy array)
 X = preprocessing.StandardScaler().fit(X).transform(X.astype(float))
 
 Y = preprocessing.StandardScaler().fit(Y).transform(Y.astype(float))
 
+# slicing the Test set to reshaape the array 
 Y = Y[0:17815]
 
+# Performing cross-validation with 70% training and 30% testing
 X_train , X_test , y_train , y_test = train_test_split(X,y,test_size=0.3,random_state=0)
 
 print(X_train.shape)
@@ -92,6 +97,7 @@ print(X_test.shape)
 print(y_train.shape)
 print(y_test.shape)
 
+# Handling Nan's or any infinitely large values
 np.nan_to_num(X)
 np.nan_to_num(Y)
 
@@ -107,11 +113,11 @@ lr.fit(X_train,y_train)
 y_pred = lr.predict(Y)
 print("Logistic regression ", metrics.accuracy_score(y_test,y_pred))
 
-
+# Feature importanceenginnering after fitting a random forest model to the training data.
 feature_imp = pd.Series(rf.feature_importances_,index=X_train.columns).sort_values(ascending=False)
 print(feature_imp)
 
-Visulaizing the importance of the variable
+#Visulaizing the importance of the variable
 sns.barplot(x=feature_imp.index, y=feature_imp)
 
 plt.xlabel('Features')
